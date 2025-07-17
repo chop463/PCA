@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}SocialScope Analytics{% endblock %}</title>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen flex flex-col">
+  <header class="bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold">SocialScope Analytics</h1>
+        </div>
+        <div class="text-sm opacity-90">
+          Dashboard Intelligence
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <main class="flex-1 container mx-auto px-6 py-8">
+    {% block content %}{% endblock %}
+  </main>
+  
+  <footer class="bg-white border-t border-gray-200 mt-auto">
+    <div class="container mx-auto px-6 py-4">
+      <div class="flex items-center justify-center text-sm text-gray-500">
+        <span>&copy; 2025 IDRIS ANDRIANJAKA | AI Developer</span>
+        <div class="mx-2">•</div>
+        <span>Powered by Django & AI</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,268 @@
+{% extends "analytics/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_head %}
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      /* ───── Scatter Likes vs Comments ───── */
+      const rows = JSON.parse('{{ scatter_json|escapejs }}');
+      const colors = ['#6366F1','#10B981','#F59E0B','#EF4444',
+                      '#8B5CF6','#EC4899','#14B8A6','#F97316'];
+      const traces = {};
+      rows.forEach(([likes, comments, cluster]) => {
+        if (!traces[cluster]) {
+          traces[cluster] = {x:[],y:[],mode:'markers',
+            name:`Cluster ${cluster}`,
+            marker:{size:8,color:colors[cluster%colors.length]}};
+        }
+        traces[cluster].x.push(likes);
+        traces[cluster].y.push(comments);
+      });
+      Plotly.newPlot('scatter', Object.values(traces),
+        {margin:{t:20},xaxis:{title:'num_likes'},yaxis:{title:'num_comments'},
+         plot_bgcolor:'rgba(0,0,0,0)',paper_bgcolor:'rgba(0,0,0,0)'});
+
+      /* ───── Histogramme horaire ───── */
+      const hp = JSON.parse('{{ hour_perf|escapejs }}');
+      Plotly.newPlot('hour-chart',[{
+        x: hp.map(o=>o.hour), y: hp.map(o=>o.num_reactions),
+        type:'bar', marker:{color:'#6366F1'}
+      }], {margin:{t:20}, xaxis:{title:'Heure'}, yaxis:{title:'Réactions moy.'},
+         plot_bgcolor:'rgba(0,0,0,0)',paper_bgcolor:'rgba(0,0,0,0)'});
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900">Tableau de bord Analytics</h2>
+        <p class="text-gray-600 mt-1">Analyse complète de vos performances Facebook</p>
+      </div>
+      <div class="flex space-x-3">
+        <a href="{% url 'analytics:download_csv' %}"
+           class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors shadow-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-4-4m4 4l4-4m-6 4H8"/>
+          </svg>
+          CSV
+        </a>
+        <a href="{% url 'analytics:generate_report' %}"
+           class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Rapport PDF
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI globaux -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-blue-600 font-medium text-sm">Likes moyens</p>
+          <p class="text-3xl font-bold text-blue-900">{{ kpis.mean_likes }}</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-green-600 font-medium text-sm">Commentaires moyens</p>
+          <p class="text-3xl font-bold text-green-900">{{ kpis.mean_comments }}</p>
+        </div>
+        <div class="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-purple-600 font-medium text-sm">Partages moyens</p>
+          <p class="text-3xl font-bold text-purple-900">{{ kpis.mean_shares }}</p>
+        </div>
+        <div class="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI par cluster -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+      <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+      Performance par cluster
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-{{ clusters|length }} gap-4">
+      {% for c in cluster_kpis %}
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-medium text-gray-600">Cluster {{ c.cluster_label }}</span>
+            <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+              <span class="text-xs font-bold text-indigo-600">{{ c.cluster_label }}</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-xs text-gray-500">Likes:</span>
+              <span class="text-sm font-semibold text-gray-900">{{ c.num_likes }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-xs text-gray-500">Comments:</span>
+              <span class="text-sm font-semibold text-gray-900">{{ c.num_comments }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-xs text-gray-500">Shares:</span>
+              <span class="text-sm font-semibold text-gray-900">{{ c.num_shares }}</span>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Type le plus engageant -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+      <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+      </svg>
+      Types de posts les plus engageants
+    </h3>
+    <div class="flex flex-wrap gap-4">
+      {% for t in type_perf %}
+        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4 border border-indigo-200 flex-1 min-w-0">
+          <p class="text-sm text-indigo-600 font-medium uppercase tracking-wide">{{ t.status_type }}</p>
+          <p class="text-2xl font-bold text-indigo-900 mt-1">{{ t.num_reactions }}</p>
+          <p class="text-xs text-indigo-500">réactions moyennes</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Histogramme horaire -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Réactions par heure
+      </h3>
+      <div id="hour-chart" class="w-full h-72"></div>
+    </div>
+
+    <!-- Scatter -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4"/>
+        </svg>
+        Corrélation Likes vs Comments
+      </h3>
+      <div id="scatter" class="w-full h-72"></div>
+    </div>
+  </div>
+
+  <!-- Top posts -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+      </svg>
+      Top posts représentatifs
+    </h3>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cluster</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status ID</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réactions</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commentaires</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partages</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for p in top_posts %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                  {{ p.cluster_label }}
+                </span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ p.status_id }}</td>
+              <td class="px-4 py-3 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {{ p.status_type }}
+                </span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">{{ p.num_reactions }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">{{ p.num_comments }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">{{ p.num_shares }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Aperçu DataFrame -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      Aperçu des données traitées
+    </h3>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          {% if preview %}
+            <tr>
+              {% for k in preview.0.keys %}
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ k }}</th>
+              {% endfor %}
+            </tr>
+          {% endif %}
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for row in preview %}
+            <tr class="hover:bg-gray-50">
+              {% for v in row.values %}
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ v }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

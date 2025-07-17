@@ -1,0 +1,143 @@
+{% extends "analytics/base.html" %}
+{% block title %}Importer CSV{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <!-- Header Section -->
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
+      <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+      </svg>
+    </div>
+    <h2 class="text-3xl font-bold text-gray-900 mb-2">Analysez vos données Facebook</h2>
+    <p class="text-lg text-gray-600">Importez votre fichier CSV pour obtenir des insights détaillés sur vos performances</p>
+  </div>
+
+  <!-- Features Grid -->
+  <div class="grid md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Clustering automatique</h3>
+      <p class="text-sm text-gray-600">Segmentation intelligente de vos posts par performance</p>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Analytics en temps réel</h3>
+      <p class="text-sm text-gray-600">Visualisations interactives et KPIs détaillés</p>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapports PDF</h3>
+      <p class="text-sm text-gray-600">Exportez vos analyses sous format professionnel</p>
+    </div>
+  </div>
+
+  <!-- Upload Form -->
+  <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-8 py-6">
+      <h3 class="text-xl font-semibold text-white flex items-center">
+        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        Importez votre fichier CSV
+      </h3>
+      <p class="text-primary-100 mt-1">Formats acceptés: .csv (max 10MB)</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="p-8">
+      {% csrf_token %}
+      
+      <div class="space-y-6">
+        <!-- File Upload Area -->
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary-400 transition-colors">
+          <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+          </div>
+          
+          {{ form.as_p }}
+          
+          <p class="text-sm text-gray-500 mt-4">
+            Glissez-déposez votre fichier ici ou cliquez pour parcourir
+          </p>
+        </div>
+
+        <!-- Expected Format Info -->
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+              <h4 class="text-sm font-medium text-blue-800 mb-1">Format de données attendu</h4>
+              <p class="text-sm text-blue-700">
+                Votre CSV doit contenir les colonnes : status_id, status_type, num_reactions, num_comments, num_shares, num_likes, et status_published (format datetime).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-center">
+          <button type="submit" class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            Lancer l'analyse
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Sample Data Preview -->
+  <div class="mt-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <h4 class="text-lg font-semibold text-gray-900 mb-3">Exemple de données</h4>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left font-medium text-gray-700">status_id</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-700">status_type</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-700">num_reactions</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-700">num_comments</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-700">num_shares</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <tr>
+            <td class="px-4 py-2 text-gray-600">12345</td>
+            <td class="px-4 py-2 text-gray-600">photo</td>
+            <td class="px-4 py-2 text-gray-600">245</td>
+            <td class="px-4 py-2 text-gray-600">32</td>
+            <td class="px-4 py-2 text-gray-600">18</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 text-gray-600">12346</td>
+            <td class="px-4 py-2 text-gray-600">video</td>
+            <td class="px-4 py-2 text-gray-600">412</td>
+            <td class="px-4 py-2 text-gray-600">67</td>
+            <td class="px-4 py-2 text-gray-600">29</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

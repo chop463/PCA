@@ -1,0 +1,6 @@
+django
+pandas 
+joblib 
+scikit-learn
+weasyprint
+

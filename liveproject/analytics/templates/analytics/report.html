@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { margin: 20mm 15mm; font-family: "DejaVu Sans"; }
+    h1, h2 { color:#4338ca; }
+    table { width:100%; border-collapse: collapse; font-size: 12px; }
+    th, td { border:1px solid #ddd; padding:4px 6px; text-align:left; }
+    th { background:#f3f4f6; }
+    .kpi-box { display:inline-block; width:30%; margin:4mm 0;
+               padding:3mm; background:#f3f4f6; border-radius:4px; }
+    .kpi-val { font-size:22px; font-weight:700; }
+  </style>
+</head>
+<body>
+  <h1>Rapport Live Facebook Analytics</h1>
+  <p>Date : {{ generated_at }}</p>
+
+  <!-- KPI globaux -->
+  <h2>KPIs globaux</h2>
+  <div>
+    <div class="kpi-box">Likes <br><span class="kpi-val">{{ kpis.mean_likes }}</span></div>
+    <div class="kpi-box">Comments <br><span class="kpi-val">{{ kpis.mean_comments }}</span></div>
+    <div class="kpi-box">Shares <br><span class="kpi-val">{{ kpis.mean_shares }}</span></div>
+  </div>
+
+  <!-- Type performant -->
+  <h2>Type de post le plus engageant</h2>
+  <table>
+    <thead><tr><th>#</th><th>Type</th><th>Réactions moy.</th></tr></thead>
+    <tbody>
+      {% for t in type_perf|slice:":5" %}
+      <tr><td>{{ forloop.counter }}</td><td>{{ t.status_type }}</td><td>{{ t.num_reactions }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- KPI par cluster -->
+  <h2>Résumé par cluster</h2>
+  <table>
+    <thead><tr><th>Cluster</th><th>Likes</th><th>Comments</th><th>Shares</th></tr></thead>
+    <tbody>
+      {% for c in cluster_kpis %}
+      <tr><td>{{ c.cluster_label }}</td><td>{{ c.num_likes }}</td><td>{{ c.num_comments }}</td><td>{{ c.num_shares }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Top posts -->
+  <h2>Top posts représentatifs</h2>
+  <table>
+    <thead><tr><th>Cluster</th><th>Status ID</th><th>Type</th><th>Reacts</th><th>Comments</th><th>Shares</th></tr></thead>
+    <tbody>
+      {% for p in top_posts %}
+      <tr>
+        <td>{{ p.cluster_label }}</td><td>{{ p.status_id }}</td><td>{{ p.status_type }}</td>
+        <td>{{ p.num_reactions }}</td><td>{{ p.num_comments }}</td><td>{{ p.num_shares }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Recos -->
+  <h2>Recommandations clés</h2>
+  <ol>
+    {% for r in recommendations %}
+      <li>{{ r }}</li>
+    {% endfor %}
+  </ol>
+
+  <p style="margin-top:10mm;font-size:10px;">
+    Rapport généré automatiquement par SocialScope Analytics -- {{ generated_at }}.
+  </p>
+</body>
+</html>
