@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: pca-app
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn liveproject.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: liveproject.settings
+      - key: PYTHONPATH
+        value: /opt/render/project/src
